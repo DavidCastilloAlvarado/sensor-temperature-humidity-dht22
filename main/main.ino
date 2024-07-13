@@ -1,0 +1,89 @@
+/*
+Author: David Castillo Alvarado
+Date: 13 July 2024
+
+Main hardware:
+- 16x2 LCD display
+- dht22 2301 sensor
+Note:
+- yes you need potenciometer to catch up
+  the right light up for the LCD background.
+
+Libraries:
+- DHT sensor Library from Adafruit 1.4.6
+- LCD default library from Arduino
+
+## LCD pinout
+  The circuit:
+ * LCD RS pin to digital pin 12
+ * LCD Enable pin to digital pin 11
+ * LCD D4 pin to digital pin 5
+ * LCD D5 pin to digital pin 4
+ * LCD D6 pin to digital pin 3
+ * LCD D7 pin to digital pin 2
+ * LCD R/W pin to ground
+ * LCD VSS pin to ground
+ * LCD VCC pin to 5V
+ * 20K resistor:
+ * ends to +5V and ground
+ * wiper to LCD VO pin (pin 3)
+
+### DHT22 pinout:
+ * DHT22 PIN1 to PIN2 with 10k ohm resitor
+ * DHT22 PIN2 to digital pin 7 
+ * DHT22 PIN4 to ground
+*/
+
+// include the library code:
+#include <LiquidCrystal.h>
+#include "DHT.h" 
+#define DHTPIN 7     //Pin where is the sensor connecte
+#define DHTTYPE DHT22   // Sensor DHT22
+
+// initialize the library for DHT sensor
+DHT dht(DHTPIN, DHTTYPE);
+// initialize the library by associating any needed LCD interface pin
+// with the arduino pin number it is connected to
+const int rs = 12, en = 11, d4 = 5, d5 = 4, d6 = 3, d7 = 2;
+LiquidCrystal lcd(rs, en, d4, d5, d6, d7);
+
+void get_temp_humidity(){
+  delay(2000);
+  float temp_offset = 0;
+  // Reading temperature or humidity takes about 250 milliseconds!
+  // Sensor readings may also be up to 2 seconds 'old' (its a very slow sensor)
+  float h = dht.readHumidity();
+  // Read temperature as Celsius (the default)
+  float t = dht.readTemperature()-temp_offset;
+  // Read temperature as Fahrenheit (isFahrenheit = true)
+  float f = dht.readTemperature(true);
+
+  // Check if any reads failed and exit early (to try again).
+  if (isnan(h) || isnan(t) || isnan(f)) {
+    Serial.println(F("Failed to read from DHT sensor!"));
+    return;
+  }
+  // Compute heat index in Celsius (isFahreheit = false)
+  float hic = dht.computeHeatIndex(t, h, false);
+
+  String temp =     "Temp: " + String(t) + " .C";
+  String humidity = "Hum : " + String(h) + " %  ";
+  lcd.setCursor(0, 1);
+  lcd.print(temp);
+  delay(1000);
+  lcd.setCursor(0, 1);
+  lcd.print(humidity);
+  
+}
+
+void setup() {
+  // set up the LCD's number of columns and rows:
+  lcd.begin(16, 2);
+  // Print a message to the LCD.
+  lcd.print("David:Sensor 001");
+  dht.begin();
+}
+
+void loop() {
+  get_temp_humidity();
+}
