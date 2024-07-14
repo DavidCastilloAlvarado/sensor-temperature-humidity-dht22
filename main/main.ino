@@ -69,10 +69,10 @@ void get_temp_humidity(){
   String temp =     "Temp: " + String(t) + " .C";
   String humidity = "Hum : " + String(h) + " %  ";
   lcd.setCursor(0, 1);
-  lcd.print(temp);
+  lcd.print(humidity);
   delay(1000);
   lcd.setCursor(0, 1);
-  lcd.print(humidity);
+  lcd.print(temp);
   
 }
 
